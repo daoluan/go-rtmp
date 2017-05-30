@@ -28,8 +28,6 @@ type LiveStream struct {
 
 // stream map: streamid to stream info
 var streammap = map[string]*LiveStream{}
-var codecinfo_audio = new(bytes.Buffer)
-var codecinfo_video = new(bytes.Buffer)
 
 func (r *RtmpServer) Run(rtmp_conf RtmpConf) bool {
 	l, err := net.Listen("tcp", rtmp_conf.server_addr.String())
