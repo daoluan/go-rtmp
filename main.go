@@ -42,7 +42,7 @@ func (r *RtmpServer) Run(rtmp_conf RtmpConf) bool {
 		conn, err := l.Accept()
 		if err != nil {
 			log.Println("fail to accept: ", err.Error())
-			return false
+			break
 		}
 
 		go HandleNewConnection(conn)

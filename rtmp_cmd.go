@@ -5,19 +5,6 @@ import (
 	"go_rtmp_srv/amf"
 )
 
-type ConnCmdObj struct {
-	App         string
-	Type        string
-	Flashver    string
-	Swfurl      string
-	Tcurl       string
-	Fpad        bool
-	Audiocodecs int
-	Videocodecs int
-	Videofunc   int
-	Pageurl     string
-}
-
 type Connect struct {
 	cmd            string
 	transaction_id uint64
@@ -53,30 +40,61 @@ func (c *Connect) Parse(buf *bytes.Buffer) bool {
 		}
 
 		var f float64 = 0
+		var bret bool = false
 		switch field {
 		case "app":
-			_, c.app = amf.DecodeString(buf)
+			bret, c.app = amf.DecodeString(buf)
+			if !bret {
+				return false
+			}
 		case "flashver":
-			_, c.flashver = amf.DecodeString(buf)
+			bret, c.flashver = amf.DecodeString(buf)
+			if !bret {
+				return false
+			}
 		case "swfUrl":
-			_, c.swfurl = amf.DecodeString(buf)
+			bret, c.swfurl = amf.DecodeString(buf)
+			if !bret {
+				return false
+			}
 		case "tcUrl":
-			_, c.tcurl = amf.DecodeString(buf)
+			bret, c.tcurl = amf.DecodeString(buf)
+			if !bret {
+				return false
+			}
 		case "fpad":
-			_, c.fpad = amf.DecodeBool(buf)
+			bret, c.fpad = amf.DecodeBool(buf)
+			if !bret {
+				return false
+			}
 		case "audioCodecs":
-			_, f = amf.DecodeNumber(buf)
+			bret, f = amf.DecodeNumber(buf)
+			if !bret {
+				return false
+			}
 			c.audiocodecs = int(f)
 		case "videoCodecs":
-			_, f = amf.DecodeNumber(buf)
+			bret, f = amf.DecodeNumber(buf)
+			if !bret {
+				return false
+			}
 			c.videocodecs = int(f)
 		case "videoFunction":
-			_, f = amf.DecodeNumber(buf)
+			bret, f = amf.DecodeNumber(buf)
+			if !bret {
+				return false
+			}
 			c.videofunc = int(f)
 		case "pageUrl":
-			_, c.pageurl = amf.DecodeString(buf)
+			bret, c.pageurl = amf.DecodeString(buf)
+			if !bret {
+				return false
+			}
 		case "type":
-			_, c.ttype = amf.DecodeString(buf)
+			bret, c.ttype = amf.DecodeString(buf)
+			if !bret {
+				return false
+			}
 		default:
 			// skip this field
 			t := buf.Next(1)[0]

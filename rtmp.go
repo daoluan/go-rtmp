@@ -94,11 +94,12 @@ type RtmpConn struct {
 	acc_pkt_type       bytes.Buffer
 	streamname         string
 
-	trunk_size uint32
-	was        int
-	bindwidth  int
-	trunk      Trunk
-	exit       bool
+	trunk_size     uint32
+	was            int
+	bindwidth      int
+	trunk          Trunk
+	exit           bool
+	stream_created bool
 }
 
 func HandleNewConnection(conn net.Conn) {
@@ -112,6 +113,7 @@ func (r *RtmpConn) handleNewConnection(conn net.Conn) {
 	r.state = RTMP_HS_NONE
 	r.trunk_size = 128
 	r.exit = false
+	r.stream_created = false
 
 	if !r.handShake() {
 		log.Println("fail hand shake")
@@ -305,7 +307,7 @@ func (r *RtmpConn) feed() int {
 			r.trunk.message_header.msgtype = int(reqbuf[pos])
 			pos += 1
 
-			r.trunk.message_header.msgstreamid = binary.BigEndian.Uint32(reqbuf[pos : pos+4])
+			r.trunk.message_header.msgstreamid = binary.LittleEndian.Uint32(reqbuf[pos : pos+4])
 			pos += 4
 
 			log.Printf("timestamp=%d|messagelen=%d|typeid=%d|string(typeid)=%s|streamid=%d|len(reqbuf)=%d\n",
@@ -722,6 +724,13 @@ func (r *RtmpConn) ResponseConnect() {
 }
 
 func (r *RtmpConn) HandleCreateStream(buf *bytes.Buffer) bool {
+	if r.stream_created {
+		r.exit = true
+		return false
+	}
+
+	r.stream_created = true
+
 	var cs CreateStream
 	if ret := cs.Parse(buf); !ret {
 		return false

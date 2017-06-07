@@ -63,6 +63,7 @@ func pullStream(w http.ResponseWriter, r *http.Request) {
 		flusher, _ := w.(http.Flusher)
 		_, err := w.Write([]byte(flvhead.toBytes()))
 		if err != nil {
+			pi.recycle = true
 			log.Println("write error")
 			return
 		}
